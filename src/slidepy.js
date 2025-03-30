@@ -5,17 +5,18 @@ function Slidepy(selector, options = {}) {
     return;
   }
 
-  this._defaultOpt = {
+  const defaultOpt = {
     items: 1,
     loop: false,
   };
 
-  this.opt = { ...this._defaultOpt, ...options };
+  this.opt = { ...defaultOpt, ...options };
   this.slides = Array.from(this.container.children);
 
-  this.currentIndex = 0;
+  this.currentIndex = this.opt.loop ? this.opt.items : 0;
 
   this._init();
+  this._updatePosition();
 }
 
 Slidepy.prototype._init = function () {
@@ -29,6 +30,15 @@ Slidepy.prototype._init = function () {
 Slidepy.prototype._createTrack = function () {
   this.track = document.createElement("div");
   this.track.className = "slidepy-track";
+
+  const cloneHead = this.slides
+    .slice(-this.opt.items)
+    .map((node) => node.cloneNode(true));
+  const cloneTail = this.slides
+    .slice(0, this.opt.items)
+    .map((node) => node.cloneNode(true));
+
+  this.slides = cloneHead.concat(this.slides.concat(cloneTail));
 
   this.slides.forEach((slide) => {
     slide.classList.add("slidepy-slide");
@@ -56,15 +66,35 @@ Slidepy.prototype._createNavigation = function () {
 };
 
 Slidepy.prototype.moveSlide = function (step) {
+  if (this._isAnimating) return;
+  this._isAnimating = true;
+
   if (this.opt.loop) {
     this.currentIndex =
       (this.currentIndex + step + this.slides.length) % this.slides.length;
+
+    this.track.ontransitionend = () => {
+      const maxIndex = this.slides.length - this.opt.items;
+      if (this.currentIndex <= 0) {
+        this.currentIndex = maxIndex - this.opt.items;
+      } else if (this.currentIndex >= maxIndex) {
+        this.currentIndex = this.opt.items;
+      }
+      this._updatePosition(true);
+      this._isAnimating = false;
+    };
   } else {
     this.currentIndex = Math.min(
       Math.max(this.currentIndex + step, 0),
       this.slides.length - this.opt.items
     );
   }
+
+  this._updatePosition();
+};
+
+Slidepy.prototype._updatePosition = function (instant = false) {
+  this.track.style.transition = instant ? "none" : `transform ease 0.3s`;
   this.offset = -(this.currentIndex * (100 / this.opt.items));
   this.track.style.transform = `translateX(${this.offset}%)`;
 };
