@@ -54,7 +54,10 @@
 
     <script src="./src/slidepy.js"></script>
     <script>
-      const mySlider = new Slidepy("#my-slider");
+      const mySlider = new Slidepy("#my-slider", {
+        items: 1,
+        loop: true,
+      });
     </script>
   </body>
 </html>
