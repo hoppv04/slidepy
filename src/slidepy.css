@@ -1,7 +1,10 @@
 .slidepy-wrapper {
-  position: relative;
   width: 100%;
   overflow: hidden;
+}
+
+.slidepy-content {
+  position: relative;
 }
 
 .slidepy-track {
@@ -30,4 +33,24 @@
 
 .slidepy-next {
   right: 10px;
+}
+
+.slidepy-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.slidepy-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: #ccc;
+}
+
+.slidepy-dot.active {
+  background: #333;
 }
